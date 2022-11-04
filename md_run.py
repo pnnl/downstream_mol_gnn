@@ -19,6 +19,7 @@ from utils.calc import TTMCalculator, SchnetCalculator
 
 import argparse
 parser = argparse.ArgumentParser()
+parser.add_argument('--model', default='./data/models/TTM_nonminima.pt', type=str, help='Path to trained model.')
 parser.add_argument('--database', required=True, type=str, help='Path to ASE database.')
 parser.add_argument('--sample', required=True, type=int, help='Index of sample in ASE database.')
 parser.add_argument('--seed', default=42, type=int, help='Random seed for repeated runs.')
@@ -39,27 +40,13 @@ atoms_init.rattle(stdev=0.01, seed=args.seed)
 ####CALIBRATE#####
 MaxwellBoltzmannDistribution(atoms_init, temperature_K=args.temp, force_temp=True)
 
-####TTM####
-traj_file = op.join(args.savedir, f"W{args.size}_row{n}_ttm_{args.seed}.traj")
-
-atoms = atoms_init.copy()
-calc = TTMCalculator()
-atoms.calc = calc
-
-dyn = NVTBerendsen(atoms, args.step * units.fs, temperature_K=args.temp, taut=0.5*1000*units.fs,
-                   trajectory = traj_file)
-dyn.run(args.steps)
-
-print(f"ttm traj file saved to {traj_file}")
-
-
-####NNP####
-model = '/qfs/projects/ecp_exalearn/designs/finetune_comparison/finetune_training/nonmin_only/mse_e_mse_g/finetune_ttm_alstep49.pt'
-model_tag = 'finetune-nonmin_only'
-traj_file = op.join(args.savedir, f"W{args.size}_row{n}_{model_tag}_{args.seed}.traj")
+####RUN NNP DYNAMICS####
+db_tag = args.database.split('/')[-1].replace('.db','')
+model_tag = args.model.split('/')[-1].replace('.pt','') 
+traj_file = op.join(args.savedir, f"{db_tag}_row{n}_{model_tag}_{args.seed}.traj")
 atoms = atoms_init.copy()
 
-calc = SchnetCalculator(model, atoms)
+calc = SchnetCalculator(args.model, atoms)
 atoms.calc = calc
 
 dyn = NVTBerendsen(atoms, args.step * units.fs, temperature_K=args.temp, taut=0.5*1000*units.fs,
