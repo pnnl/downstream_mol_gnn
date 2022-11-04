@@ -1,4 +1,5 @@
 # Reducing Down(stream)time: Pretraining Molecular GNNs using Heterogeneous AI Accelerators 
+The demonstrated success of transfer learning has popularized approaches that involve pretraining models from massive data sources and subsequent finetuning towards a specific task. While such approaches have become the norm in fields such as natural language processing, implementation and evaluation of transfer learning approaches for chemistry are in the early stages. In this work, we demonstrate finetuning for downstream tasks on a graph neural network (GNN) trained over a molecular database containing 2.7 million water clusters. The use of Graphcore IPUs as an AI accelerator for training molecular GNNs reduces training time from a reported 2.7 days on 0.5M clusters to 1.2 hours on 2.7M clusters. Finetuning the pretrained model for downstream tasks of molecular dynamics and transfer to a different potential energy surface took only 8.3 hours and 28 minutes, respectively, on a single GPU. 
 
 ## Conda Environment
 
@@ -26,3 +27,20 @@ pip install torch-scatter torch-sparse torch-cluster torch-geometric -f https://
 conda install -c conda-forge tensorboard ase fair-research-login h5py tqdm gdown
 ```
 Note that installing `torch-spine-conv` will likely produce a GLIBC error. It is safe to `pip uninstall torch-spine-conv` if the error occurs.
+
+
+## Downstream Tasks
+
+#### Data Space Expansion
+Finetuning the pretrained model on a dataset of nonminima computed with the TTM2.1-F potential and including a force term in the loss function produces a neural network potential (NNP) able to drive molecular dynamics simulations.
+```
+python train.py --savedir ./results/data_space_transfer_finetune --args data_space_transfer_args.json 
+```
+Molecular dynamics simulations can be performed using `md_run.py`.
+
+#### PES Transfer
+Finetuning the pretrained model on a small dataset of minima computed with the MB-pol potential allows the network to provide energy predictions comparable to MB-pol.
+```
+python train.py --savedir ./results/PES_transfer_finetune --args PES_transfer_args.json 
+```
+Energy predictions can be obtained using `static_audit.py`.
