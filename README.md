@@ -28,6 +28,8 @@ conda install -c conda-forge tensorboard ase fair-research-login h5py tqdm gdown
 ```
 Note that installing `torch-spine-conv` will likely produce a GLIBC error. It is safe to `pip uninstall torch-spine-conv` if the error occurs.
 
+## Data, Models, and Results
+Preprocessed datasets, including the database of nonminima computed with the TTM2.1-F potential and the database of minima computed with the MB-pol potential, split files, trained models, ASE databases for MD simulations, and results of the downstream tasks can be downloaded at [https://data.pnnl.gov/group/nodes/dataset/33283](https://data.pnnl.gov/group/nodes/dataset/33283).
 
 ## Downstream Tasks
 
@@ -44,3 +46,6 @@ Finetuning the pretrained model on a small dataset of minima computed with the M
 python train.py --savedir ./results/PES_transfer_finetune --args PES_transfer_args.json 
 ```
 Energy predictions can be obtained using `static_audit.py`.
+
+#### Visualizing Results 
+Visualizations of the downstream tasks are demonstrated in `plot_results.ipynb`.
